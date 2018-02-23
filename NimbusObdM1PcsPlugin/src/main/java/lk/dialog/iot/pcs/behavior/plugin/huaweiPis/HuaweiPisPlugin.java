@@ -52,7 +52,7 @@ public class HuaweiPisPlugin extends Plugin {
 
         public HashMap<String, String> pluginOperation(Map<String, Object> receivedMap) throws PluginBehaviorException {
 
-            HashMap<String, String> responseMap = new HashMap();
+            HashMap<String, String> responseMap = null;
 
             if (isDebigEnable) {
                 logger.debug("Plugin received map : {}.", receivedMap);
@@ -77,12 +77,13 @@ public class HuaweiPisPlugin extends Plugin {
 
                 switch (method) {
                     case "direct": {
-                        directMethod(data);
+                        responseMap = directMethod(data);
                         break;
 
                     }
                     case "NoNdirect": {
                         logger.info("Method : NoNdirect executed successfully.");
+                        responseMap.put("state", "failed.");
                         break;
                     }
                 }
@@ -91,13 +92,12 @@ public class HuaweiPisPlugin extends Plugin {
                 logger.error("Exception : {}", e.getMessage());
             }
 
-            publishRequestedNimbusObdStatus(receivedMap);
 
-            responseMap.put("state", "success");
+            publishRequestedNimbusObdStatus(responseMap);
             return responseMap;
         }
 
-        private void publishRequestedNimbusObdStatus(Map<String, Object> receivedMap) throws PluginBehaviorException {
+        private void publishRequestedNimbusObdStatus(HashMap<String, String> receivedMap) throws PluginBehaviorException {
 
             logger.info("mqtt published.");
 
@@ -111,11 +111,13 @@ public class HuaweiPisPlugin extends Plugin {
         }
 //
 
-        private void directMethod(Map<String, String> data) throws Exception {
+        private HashMap<String,String> directMethod(Map<String, String> data) throws Exception {
 
             logger.info("Method : direct executed successfully.");
 
-            String mac = (String) data.get("mac");
+            String mac = data.get("mac");
+
+            HashMap<String,String> huaweiRes = new HashMap();
 
             HashMap responce = devicemanagement.regDirectDevice(mac);
             int state_code = util.responceCode(responce);
@@ -126,21 +128,26 @@ public class HuaweiPisPlugin extends Plugin {
                 authreq.login();
                 responce = devicemanagement.regDirectDevice(mac);
                 state_code = util.responceCode(responce);
+
+                String verifyCode = (String) responce.get("verifyCode");
+                String psk = (String) responce.get("psk");
+                String deviceId = (String) responce.get("deviceId");
+
+                logger.info("verifyCode    : " + verifyCode);
+                logger.info("psk           : " + psk);
+                logger.info("deviceId 	   : " + deviceId);
+
+                logger.info("Responce 	   : " + responce.get("state"));
+
+                huaweiRes.put("state", String.valueOf(state_code));
+                huaweiRes.put("verifyCode", verifyCode);
+                huaweiRes.put("deviceId" , deviceId);
             }
             if (state_code == 401) {
-
+                huaweiRes.put("state", String.valueOf(state_code));
             }
 
-            String verifyCode = (String) responce.get("verifyCode");
-            String psk = (String) responce.get("psk");
-            String deviceId = (String) responce.get("deviceId");
-
-            logger.info("verifyCode    : " + verifyCode);
-            logger.info("psk           : " + psk);
-            logger.info("deviceId 	   : " + deviceId);
-
-            logger.info("Responce 	   : " + responce.get("state"));
-
+            return huaweiRes;
         }
     }
 
