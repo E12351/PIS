@@ -39,7 +39,7 @@ public class AuthReq {
 //        System.out.println("reach 1 " + responseLogin.getContent());
 
             data = JsonUtil.jsonString2SimpleObj(responseLogin.getContent(), data.getClass());
-            System.out.println(data.toString());
+//            System.out.println(data.toString());
             String state = String.valueOf(responseLogin.getStatusLine());
             String[] stat_code = state.split(" ");
 
@@ -47,7 +47,7 @@ public class AuthReq {
 
 
             authHandale.setaccessToken(data.get("accessToken"));
-            System.out.println(data);
+//            System.out.println(data);
 
             return (HashMap) data;
       

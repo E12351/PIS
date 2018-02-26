@@ -54,6 +54,7 @@ public class DataCollection {
 
         Map<String, String> data = new HashMap();
         data = JsonUtil.jsonString2SimpleObj(response.getContent(), data.getClass());
+        data.put("state", String.valueOf(response.getStatusLine()));
 
         System.out.println("deviceServiceInvocation : " + response.getStatusLine());
 
@@ -87,8 +88,7 @@ public class DataCollection {
 
         Map<String, String> data = new HashMap();
         data = JsonUtil.jsonString2SimpleObj(response.getContent(), data.getClass());
-
-        System.out.println(response.getStatusLine());
+        data.put("state", String.valueOf(response.getStatusLine()));
 
         return (HashMap) data;
 
@@ -122,9 +122,9 @@ public class DataCollection {
 
         Map<String, String> data = new HashMap();
         data = JsonUtil.jsonString2SimpleObj(response.getContent(), data.getClass());
+        data.put("state", String.valueOf(response.getStatusLine()));
 
-        System.out.println(response.getStatusLine());
-
+//        System.out.println("Passed.");
         return (HashMap) data;
 
     }

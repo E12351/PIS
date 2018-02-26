@@ -64,7 +64,7 @@ public class HttpsUtil extends DefaultHttpClient {
 		String selfcertpath = demo_base_Path + Constant.SELFCERTPATH;
 		String trustcapath = demo_base_Path + Constant.TRUSTCAPATH;
 
-		System.out.println(selfcertpath);
+//		System.out.println(selfcertpath);
 
 		KeyStore selfCert = KeyStore.getInstance("pkcs12");
 		selfCert.load(new FileInputStream(selfcertpath),

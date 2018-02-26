@@ -72,8 +72,7 @@ public class HuaweiPisPlugin extends Plugin {
                 data = lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Utils.JsonUtil.jsonString2SimpleObj(String.valueOf(receivedMap.get("messageObject")), data.getClass());
 
                 String method = data.get("method");
-
-                logger.info("Method : {}", method);
+//                logger.info("Method : {}", method);
 
                 switch (method) {
                     case "direct": {
@@ -165,21 +164,22 @@ public class HuaweiPisPlugin extends Plugin {
         }
 
         private HashMap<String, String> LastData(Map<String,String> data){
-            HashMap<String,String> huaweiRes = new HashMap();
+            HashMap huaweiRes = new HashMap();
 
             try {
                 HashMap responce = datacollection.historicaldata(data.get(""), data.get(""));
                 int state_code = util.responceCode(responce);
-                logger.info("responce code : " + state_code);
+//                logger.info("responce code : " + state_code);
 
                 if (state_code == 200) {
-                    return huaweiRes;
+                    return responce;
                 }
                 if (state_code == 403) {
                     logger.info("responce code : " + state_code + " refreshed");
                     authreq.login();
 
                     responce = datacollection.historicaldata(data.get(""), data.get(""));
+                    System.out.println(responce);
                     state_code = util.responceCode(responce);
                     logger.info("responce code : " + state_code);
                 }
@@ -188,7 +188,7 @@ public class HuaweiPisPlugin extends Plugin {
                 }
 
             } catch (Exception e) {
-                logger.info("Exception LastData : " + e.getMessage());
+                logger.info("\nException LastData : " + e.getMessage());
             }
             return huaweiRes;
         }
