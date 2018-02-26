@@ -248,7 +248,7 @@ public class HttpsUtil extends DefaultHttpClient {
 		return (StreamClosedHttpResponse) response;
 	}
 
-	public HttpResponse doGetWithParas(String url, Map<String, String> queryParams, Map<String, String> headerMap)
+	public StreamClosedHttpResponse doGetWithParas(String url, Map<String, String> queryParams, Map<String, String> headerMap)
 			throws Exception {
 		HttpGet request = new HttpGet();
 		addRequestHeader(request, headerMap);
@@ -267,7 +267,7 @@ public class HttpsUtil extends DefaultHttpClient {
 		}
 		request.setURI(builder.build());
 
-		return executeHttpRequest(request);
+		return (StreamClosedHttpResponse)executeHttpRequest(request);
 	}
 
 	public StreamClosedHttpResponse doGetWithParasGetStatusLine(String url, Map<String, String> queryParams, Map<String, String> headerMap)

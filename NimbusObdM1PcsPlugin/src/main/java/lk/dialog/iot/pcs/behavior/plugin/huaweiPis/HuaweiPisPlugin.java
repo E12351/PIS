@@ -167,28 +167,23 @@ public class HuaweiPisPlugin extends Plugin {
             HashMap huaweiRes = new HashMap();
 
             try {
-                HashMap responce = datacollection.historicaldata(data.get(""), data.get(""));
+                HashMap responce = datacollection.historicaldata(data.get("123"), data.get(""));
                 int state_code = util.responceCode(responce);
-//                logger.info("responce code : " + state_code);
 
                 if (state_code == 200) {
                     return responce;
-                }
-                if (state_code == 403) {
+                }else if (state_code == 403) {
                     logger.info("responce code : " + state_code + " refreshed");
                     authreq.login();
+                    LastData(data);
 
-                    responce = datacollection.historicaldata(data.get(""), data.get(""));
-                    System.out.println(responce);
-                    state_code = util.responceCode(responce);
                     logger.info("responce code : " + state_code);
-                }
-                if (state_code == 401) {
+                }else if (state_code == 401) {
                     huaweiRes.put("state", String.valueOf(state_code));
                 }
 
             } catch (Exception e) {
-                logger.info("\nException LastData : " + e.getMessage());
+                logger.info("Exception LastData : " + e.getMessage());
             }
             return huaweiRes;
         }

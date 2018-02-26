@@ -1,5 +1,6 @@
 package lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Request;
 
+import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.simple.JSONObject;
@@ -117,14 +118,17 @@ public class DataCollection {
         param_reg.put("deviceId", deviceId);
         param_reg.put("gatewayId", gatewayId);
 
-        String jsonRequest = JsonUtil.jsonObj2Sting(param_reg);
-        StreamClosedHttpResponse response = httpsUtil.doPostJsonGetStatusLine(url, hedder, jsonRequest);
+//        String jsonRequest = JsonUtil.jsonObj2Sting(param_reg);
+//        StreamClosedHttpResponse response = httpsUtil.doGetWithParas(url, param_reg, hedder);
 
         Map<String, String> data = new HashMap();
+
+        StreamClosedHttpResponse response = httpsUtil.doGetWithParas(url, param_reg, hedder);
         data = JsonUtil.jsonString2SimpleObj(response.getContent(), data.getClass());
         data.put("state", String.valueOf(response.getStatusLine()));
 
-//        System.out.println("Passed.");
+        System.out.println(String.valueOf(data));
+
         return (HashMap) data;
 
     }
