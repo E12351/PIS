@@ -93,4 +93,39 @@ public class DataCollection {
         return (HashMap) data;
 
     }
+
+    public HashMap historicaldata(String deviceId, String gatewayId) throws Exception {
+
+        AuthHandle authHandle = Factory.getAuthHandale();
+        String IP = Constant.URL;
+        String port = Constant.PORT;
+        String appID = Constant.APPID;
+
+        String accessToken = authHandle.getaccessToken();
+
+        String url = "https://" + IP + ":" + port + "/iocm/app/data/v1.1.0/deviceDataHistory";
+
+        HttpsUtil httpsUtil = new HttpsUtil();
+        httpsUtil.initSSLConfigForTwoWay();
+
+        Map<String, String> hedder = new HashMap();
+        hedder.put("app_key", appID);
+        hedder.put("Authorization", accessToken);
+        hedder.put("Content-Type", "application/json");
+
+        Map<String, String> param_reg = new HashMap();
+        param_reg.put("deviceId", deviceId);
+        param_reg.put("gatewayId", gatewayId);
+
+        String jsonRequest = JsonUtil.jsonObj2Sting(param_reg);
+        StreamClosedHttpResponse response = httpsUtil.doPostJsonGetStatusLine(url, hedder, jsonRequest);
+
+        Map<String, String> data = new HashMap();
+        data = JsonUtil.jsonString2SimpleObj(response.getContent(), data.getClass());
+
+        System.out.println(response.getStatusLine());
+
+        return (HashMap) data;
+
+    }
 }

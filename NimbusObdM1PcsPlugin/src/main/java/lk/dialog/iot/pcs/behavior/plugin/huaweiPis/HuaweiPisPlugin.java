@@ -63,9 +63,9 @@ public class HuaweiPisPlugin extends Plugin {
                 throw new PluginBehaviorException("Plugin received null map");
             }
 
-            logger.info("MessageObj : {}", receivedMap.get("messageObject"));
+//            logger.info("MessageObj : {}", receivedMap.get("messageObject"));
 
-            logger.info(String.valueOf(receivedMap.get("messageObject")));
+//            logger.info(String.valueOf(receivedMap.get("messageObject")));
 
             try {
                 Map<String, String> data = new HashMap();
@@ -86,6 +86,12 @@ public class HuaweiPisPlugin extends Plugin {
                         responseMap.put("state", "failed.");
                         break;
                     }
+                    case "LastData": {
+                        logger.info("Method : LastData executed successfully.");
+                        responseMap = LastData(data);
+
+                        break;
+                    }
                 }
 
             } catch (Exception e) {
@@ -93,17 +99,17 @@ public class HuaweiPisPlugin extends Plugin {
             }
 
 
-            publishRequestedNimbusObdStatus(responseMap);
+            publishRequested(responseMap);
             return responseMap;
         }
 
-        private void publishRequestedNimbusObdStatus(HashMap<String, String> receivedMap) throws PluginBehaviorException {
+        private void publishRequested(HashMap<String, String> responseMap) throws PluginBehaviorException {
 
             logger.info("mqtt published.");
 
             MqttPublishDto mqttPublishActionDto = new MqttPublishDto();
             mqttPublishActionDto.setTopic("Reg");
-            mqttPublishActionDto.setMessage("Hello Test");
+            mqttPublishActionDto.setMessage(String.valueOf(responseMap));
 
             PluginServiceProvider pluginServiceProvider = PluginServiceProvider.getPluginServiceProvider();
             pluginServiceProvider.getMttqPublisherService().publishMessage(mqttPublishActionDto);
@@ -120,6 +126,7 @@ public class HuaweiPisPlugin extends Plugin {
             HashMap<String,String> huaweiRes = new HashMap();
 
             HashMap responce = devicemanagement.regDirectDevice(mac);
+
             int state_code = util.responceCode(responce);
             logger.info("responce code : " + state_code);
 
@@ -147,6 +154,42 @@ public class HuaweiPisPlugin extends Plugin {
                 huaweiRes.put("state", String.valueOf(state_code));
             }
 
+            return huaweiRes;
+        }
+
+        private HashMap<String,String> NoNdirectMethod(Map<String, String> data) throws Exception {
+            HashMap<String,String> huaweiRes = new HashMap();
+
+            //Should be implemented.
+            return huaweiRes;
+        }
+
+        private HashMap<String, String> LastData(Map<String,String> data){
+            HashMap<String,String> huaweiRes = new HashMap();
+
+            try {
+                HashMap responce = datacollection.historicaldata(data.get(""), data.get(""));
+                int state_code = util.responceCode(responce);
+                logger.info("responce code : " + state_code);
+
+                if (state_code == 200) {
+                    return huaweiRes;
+                }
+                if (state_code == 403) {
+                    logger.info("responce code : " + state_code + " refreshed");
+                    authreq.login();
+
+                    responce = datacollection.historicaldata(data.get(""), data.get(""));
+                    state_code = util.responceCode(responce);
+                    logger.info("responce code : " + state_code);
+                }
+                if (state_code == 401) {
+                    huaweiRes.put("state", String.valueOf(state_code));
+                }
+
+            } catch (Exception e) {
+                logger.info("Exception LastData : " + e.getMessage());
+            }
             return huaweiRes;
         }
     }
