@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Utils.HuaweiPisConstants;
+import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.method.DataCollectionMethod;
+import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.method.DeviceManagementMethod;
 
 import lk.dialog.iot.pcs.exception.impl.PluginBehaviorException;
 import lk.dialog.iot.pcs.service.PluginBehavior;
@@ -30,12 +32,6 @@ public class HuaweiPisPlugin extends Plugin {
 
     @Extension
     public static class HuaweiPisPluginInner implements PluginBehavior {
-
-        AuthReq authreq = new AuthReq();
-        DataCollection datacollection = new DataCollection();
-        DeviceManagement devicemanagement = new DeviceManagement();
-
-        UtilPlugin util = new UtilPlugin();
 
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         private boolean isDebigEnable = logger.isDebugEnabled();
@@ -64,21 +60,17 @@ public class HuaweiPisPlugin extends Plugin {
             }
 
 //            logger.info("MessageObj : {}", receivedMap.get("messageObject"));
-
 //            logger.info(String.valueOf(receivedMap.get("messageObject")));
-
             try {
                 Map<String, String> data = new HashMap();
                 data = lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Utils.JsonUtil.jsonString2SimpleObj(String.valueOf(receivedMap.get("messageObject")), data.getClass());
 
                 String method = data.get("method");
-//                logger.info("Method : {}", method);
 
                 switch (method) {
                     case "direct": {
-                        responseMap = directMethod(data);
+                        responseMap = DeviceManagementMethod.directMethod(data, logger);
                         break;
-
                     }
                     case "NoNdirect": {
                         logger.info("Method : NoNdirect executed successfully.");
@@ -87,8 +79,7 @@ public class HuaweiPisPlugin extends Plugin {
                     }
                     case "LastData": {
                         logger.info("Method : LastData executed successfully.");
-                        responseMap = LastData(data);
-
+                        responseMap = DataCollectionMethod.LastData(data, logger);
                         break;
                     }
                 }
@@ -96,7 +87,6 @@ public class HuaweiPisPlugin extends Plugin {
             } catch (Exception e) {
                 logger.error("Exception : {}", e.getMessage());
             }
-
 
             publishRequested(responseMap);
             return responseMap;
@@ -116,77 +106,13 @@ public class HuaweiPisPlugin extends Plugin {
         }
 //
 
-        private HashMap<String,String> directMethod(Map<String, String> data) throws Exception {
-
-            logger.info("Method : direct executed successfully.");
-
-            String mac = data.get("mac");
-
-            HashMap<String,String> huaweiRes = new HashMap();
-
-            HashMap responce = devicemanagement.regDirectDevice(mac);
-
-            int state_code = util.responceCode(responce);
-            logger.info("responce code : " + state_code);
-
-            if (state_code == 403) {
-                logger.info("responce code : " + state_code + " refreshed");
-                authreq.login();
-                responce = devicemanagement.regDirectDevice(mac);
-                state_code = util.responceCode(responce);
-
-                String verifyCode = (String) responce.get("verifyCode");
-                String psk = (String) responce.get("psk");
-                String deviceId = (String) responce.get("deviceId");
-
-                logger.info("verifyCode    : " + verifyCode);
-                logger.info("psk           : " + psk);
-                logger.info("deviceId 	   : " + deviceId);
-
-                logger.info("Responce 	   : " + responce.get("state"));
-
-                huaweiRes.put("state", String.valueOf(state_code));
-                huaweiRes.put("verifyCode", verifyCode);
-                huaweiRes.put("deviceId" , deviceId);
-            }
-            if (state_code == 401) {
-                huaweiRes.put("state", String.valueOf(state_code));
-            }
-
-            return huaweiRes;
-        }
-
-        private HashMap<String,String> NoNdirectMethod(Map<String, String> data) throws Exception {
-            HashMap<String,String> huaweiRes = new HashMap();
+        private HashMap<String, String> NoNdirectMethod(Map<String, String> data) throws Exception {
+            HashMap<String, String> huaweiRes = new HashMap();
 
             //Should be implemented.
             return huaweiRes;
         }
 
-        private HashMap<String, String> LastData(Map<String,String> data){
-            HashMap huaweiRes = new HashMap();
-
-            try {
-                HashMap responce = datacollection.historicaldata(data.get("123"), data.get(""));
-                int state_code = util.responceCode(responce);
-
-                if (state_code == 200) {
-                    return responce;
-                }else if (state_code == 403) {
-                    logger.info("responce code : " + state_code + " refreshed");
-                    authreq.login();
-                    LastData(data);
-
-                    logger.info("responce code : " + state_code);
-                }else if (state_code == 401) {
-                    huaweiRes.put("state", String.valueOf(state_code));
-                }
-
-            } catch (Exception e) {
-                logger.info("Exception LastData : " + e.getMessage());
-            }
-            return huaweiRes;
-        }
     }
 
 }
