@@ -127,7 +127,7 @@ public class DataCollection {
         data = JsonUtil.jsonString2SimpleObj(response.getContent(), data.getClass());
         data.put("state", String.valueOf(response.getStatusLine()));
 
-        System.out.println(String.valueOf(data));
+//        System.out.println(String.valueOf(data));
 
         return (HashMap) data;
 

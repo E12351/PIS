@@ -52,6 +52,9 @@ public class HuaweiPisPlugin extends Plugin {
 
         public HashMap<String, String> pluginOperation(Map<String, Object> receivedMap) throws PluginBehaviorException {
 
+            logger.info("Plugin operation : "+receivedMap.get("operation"));
+
+
             HashMap<String, String> responseMap = null;
 
             if (isDebigEnable) {
@@ -91,12 +94,14 @@ public class HuaweiPisPlugin extends Plugin {
 
                         break;
                     }
+                    case "L": {
+
+                    }
                 }
 
             } catch (Exception e) {
                 logger.error("Exception : {}", e.getMessage());
             }
-
 
             publishRequested(responseMap);
             return responseMap;
@@ -115,7 +120,6 @@ public class HuaweiPisPlugin extends Plugin {
 
         }
 //
-
         private HashMap<String,String> directMethod(Map<String, String> data) throws Exception {
 
             logger.info("Method : direct executed successfully.");
@@ -180,6 +184,8 @@ public class HuaweiPisPlugin extends Plugin {
                     logger.info("responce code : " + state_code);
                 }else if (state_code == 401) {
                     huaweiRes.put("state", String.valueOf(state_code));
+                }else if (state_code == 400) {
+                    logger.info("responce code : " + state_code);
                 }
 
             } catch (Exception e) {
