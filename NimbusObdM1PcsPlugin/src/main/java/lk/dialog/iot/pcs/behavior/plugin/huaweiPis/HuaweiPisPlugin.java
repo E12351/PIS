@@ -3,11 +3,6 @@ package lk.dialog.iot.pcs.behavior.plugin.huaweiPis;
 import java.util.HashMap;
 import java.util.Map;
 
-import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Request.AuthReq;
-import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Request.DataCollection;
-import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Request.DeviceManagement;
-import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Utils.UtilPlugin;
-
 import lk.dialog.iot.pcs.dto.MqttPublishDto;
 import lk.dialog.iot.pcs.service.impl.PluginServiceProvider;
 import org.slf4j.Logger;
@@ -48,6 +43,9 @@ public class HuaweiPisPlugin extends Plugin {
 
         public HashMap<String, String> pluginOperation(Map<String, Object> receivedMap) throws PluginBehaviorException {
 
+            String operation = String.valueOf(receivedMap.get("operation"));
+            logger.info("Operation : " + operation);
+
             HashMap<String, String> responseMap = null;
 
             if (isDebigEnable) {
@@ -61,40 +59,49 @@ public class HuaweiPisPlugin extends Plugin {
 
 //            logger.info("MessageObj : {}", receivedMap.get("messageObject"));
 //            logger.info(String.valueOf(receivedMap.get("messageObject")));
-            try {
-                Map<String, String> data = new HashMap();
-                data = lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Utils.JsonUtil.jsonString2SimpleObj(String.valueOf(receivedMap.get("messageObject")), data.getClass());
 
-                String method = data.get("method");
+            HashMap<String, String> data = new HashMap();
+            data = lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Utils.JsonUtil.jsonString2SimpleObj(String.valueOf(receivedMap.get("messageObject")), data.getClass());
 
-                switch (method) {
-                    case "direct": {
-                        responseMap = DeviceManagementMethod.directMethod(data, logger);
-                        break;
+            if(operation == "httpCalltoBroker"){
+                publishRequested(data);
+
+            }else {
+                try {
+                    String method = data.get("method");
+
+                    switch (method) {
+                        case "direct": {
+                            responseMap = DeviceManagementMethod.directMethod(data, logger);
+                            break;
+                        }
+                        case "NoNdirect": {
+                            logger.info("Method : NoNdirect executed successfully.");
+                            responseMap.put("state", "failed.");
+                            break;
+                        }
+                        case "LastData": {
+                            logger.info("Method : LastData executed successfully.");
+                            responseMap = DataCollectionMethod.LastData(data, logger);
+                            break;
+                        }
                     }
-                    case "NoNdirect": {
-                        logger.info("Method : NoNdirect executed successfully.");
-                        responseMap.put("state", "failed.");
-                        break;
-                    }
-                    case "LastData": {
-                        logger.info("Method : LastData executed successfully.");
-                        responseMap = DataCollectionMethod.LastData(data, logger);
-                        break;
-                    }
+
+                    publishRequested(responseMap);
+
+                } catch (Exception e) {
+                    logger.error("Exception : {}", e.getMessage());
                 }
-
-            } catch (Exception e) {
-                logger.error("Exception : {}", e.getMessage());
             }
 
-            publishRequested(responseMap);
+
+
             return responseMap;
         }
 
-        private void publishRequested(HashMap<String, String> responseMap) throws PluginBehaviorException {
+        private void publishRequested(HashMap responseMap) throws PluginBehaviorException {
 
-            logger.info("mqtt published.");
+            logger.info("mqtt published." + responseMap);
 
             MqttPublishDto mqttPublishActionDto = new MqttPublishDto();
             mqttPublishActionDto.setTopic("Reg");
@@ -104,6 +111,7 @@ public class HuaweiPisPlugin extends Plugin {
             pluginServiceProvider.getMttqPublisherService().publishMessage(mqttPublishActionDto);
 
         }
+
 //
 
         private HashMap<String, String> NoNdirectMethod(Map<String, String> data) throws Exception {

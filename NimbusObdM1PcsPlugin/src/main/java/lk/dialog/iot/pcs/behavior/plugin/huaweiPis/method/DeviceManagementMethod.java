@@ -42,6 +42,21 @@ public class DeviceManagementMethod {
         int state_code = util.responceCode(responce);
         logger.info("responce code : " + state_code);
 
+        if (state_code == 200){
+            String verifyCode = (String) responce.get("verifyCode");
+            String psk = (String) responce.get("psk");
+            String deviceId = (String) responce.get("deviceId");
+
+            logger.info("verifyCode    : " + verifyCode);
+            logger.info("psk           : " + psk);
+            logger.info("deviceId 	   : " + deviceId);
+
+            logger.info("Responce 	   : " + responce.get("state"));
+
+            huaweiRes.put("state", String.valueOf(state_code));
+            huaweiRes.put("verifyCode", verifyCode);
+            huaweiRes.put("deviceId", deviceId);
+        }
         if (state_code == 403) {
             logger.info("responce code : " + state_code + " refreshed");
             authreq.login();
