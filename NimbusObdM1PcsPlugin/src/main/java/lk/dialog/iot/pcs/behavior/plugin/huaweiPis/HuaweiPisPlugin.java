@@ -3,6 +3,7 @@ package lk.dialog.iot.pcs.behavior.plugin.huaweiPis;
 import java.util.HashMap;
 import java.util.Map;
 
+import lk.dialog.iot.pcs.behavior.plugin.huaweiPis.Request.DeviceAction;
 import lk.dialog.iot.pcs.dto.MqttPublishDto;
 import lk.dialog.iot.pcs.service.impl.PluginServiceProvider;
 import org.slf4j.Logger;
@@ -76,15 +77,15 @@ public class HuaweiPisPlugin extends Plugin {
                             break;
                         }
                         case "update": {
-
+                            logger.info("Method : Not implemented.");
                             break;
                         }
                         case "delete": {
-
+                            logger.info("Method : Not implemented.");
                             break;
                         }
                         case "serInv": {
-
+                            responseMap = DeviceAction.deviceServiceInvocation("123","123");
                             break;
                         }
                         case "NoNdirect": {
@@ -98,7 +99,7 @@ public class HuaweiPisPlugin extends Plugin {
                             break;
                         }
                         case "action": {
-
+                            logger.info("Method : Not implemented.");
                             break;
                         }
                     }

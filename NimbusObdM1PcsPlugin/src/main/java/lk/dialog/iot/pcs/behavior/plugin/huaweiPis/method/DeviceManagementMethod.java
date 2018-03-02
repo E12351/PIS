@@ -43,6 +43,7 @@ public class DeviceManagementMethod {
         logger.info("responce code : " + state_code);
 
         if (state_code == 200){
+
             String verifyCode = (String) responce.get("verifyCode");
             String psk = (String) responce.get("psk");
             String deviceId = (String) responce.get("deviceId");
@@ -56,30 +57,22 @@ public class DeviceManagementMethod {
             huaweiRes.put("state", String.valueOf(state_code));
             huaweiRes.put("verifyCode", verifyCode);
             huaweiRes.put("deviceId", deviceId);
-        }
-        if (state_code == 403) {
+
+        }else if (state_code == 403) {
+
             logger.info("responce code : " + state_code + " refreshed");
             authreq.login();
-            responce = devicemanagement.regDirectDevice(mac);
-            state_code = util.responceCode(responce);
+            directMethod(data, logger);
 
-            String verifyCode = (String) responce.get("verifyCode");
-            String psk = (String) responce.get("psk");
-            String deviceId = (String) responce.get("deviceId");
+//            responce = devicemanagement.regDirectDevice(mac);
+//            state_code = util.responceCode(responce);
 
-            logger.info("verifyCode    : " + verifyCode);
-            logger.info("psk           : " + psk);
-            logger.info("deviceId 	   : " + deviceId);
+        }else if (state_code == 401) {
+            logger.info("Not implemented. 401");
 
-            logger.info("Responce 	   : " + responce.get("state"));
-
-            huaweiRes.put("state", String.valueOf(state_code));
-            huaweiRes.put("verifyCode", verifyCode);
-            huaweiRes.put("deviceId", deviceId);
         }
-        if (state_code == 401) {
-            huaweiRes.put("state", String.valueOf(state_code));
-        }
+
+
 
         return huaweiRes;
     }
