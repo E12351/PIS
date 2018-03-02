@@ -75,6 +75,18 @@ public class HuaweiPisPlugin extends Plugin {
                             responseMap = DeviceManagementMethod.directMethod(data, logger);
                             break;
                         }
+                        case "update": {
+
+                            break;
+                        }
+                        case "delete": {
+
+                            break;
+                        }
+                        case "serInv": {
+
+                            break;
+                        }
                         case "NoNdirect": {
                             logger.info("Method : NoNdirect executed successfully.");
                             responseMap.put("state", "failed.");
@@ -83,6 +95,10 @@ public class HuaweiPisPlugin extends Plugin {
                         case "LastData": {
                             logger.info("Method : LastData executed successfully.");
                             responseMap = DataCollectionMethod.LastData(data, logger);
+                            break;
+                        }
+                        case "action": {
+
                             break;
                         }
                     }
